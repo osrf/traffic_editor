@@ -94,6 +94,9 @@ public:
   /// Load a project, replacing the current project being edited
   bool load_project(const QString& filename);
 
+  /// Create a new project, replacing the current project being edited
+  void new_project(const QString& file_path);
+
   /// Attempt to load the most recently saved project, just for convenience
   /// when starting the application since often we want to 'resume' editing.
   bool load_previous_project();
@@ -143,7 +146,7 @@ private:
 
   /////////////////
   // MENU ACTIONS
-  void project_new();
+  void action_project_new();
   void project_open();
   bool project_save();
   bool project_export_correspondence_points();

@@ -279,7 +279,7 @@ Editor::Editor()
   project_menu->addAction(
     "&New...",
     this,
-    &Editor::project_new,
+    &Editor::action_project_new,
     QKeySequence(Qt::CTRL + Qt::Key_N));
 
   project_menu->addAction(
@@ -770,7 +770,7 @@ bool Editor::load_previous_project()
   return true;
 }
 
-void Editor::project_new()
+void Editor::action_project_new()
 {
   QFileDialog dialog(this, "New Project");
   dialog.setNameFilter("*.project.yaml");
@@ -782,12 +782,16 @@ void Editor::project_new()
     return;
 
   QFileInfo file_info(dialog.selectedFiles().first());
-  std::string fn = file_info.fileName().toStdString();
+  new_project(file_info.absoluteFilePath());
+}
 
+void Editor::new_project(const QString& file_path)
+{
   project.clear();
-  project.set_filename(file_info.absoluteFilePath().toStdString());
-  QString dir_path = file_info.dir().path();
-  QDir::setCurrent(dir_path);
+  project.set_filename(file_path.toStdString());
+  QString path(QFileInfo(file_path).absolutePath());
+  qInfo("Editor::new_project() setting path to %s", qUtf8Printable(path));
+  QDir::setCurrent(path);
 
   create_scene();
   project_save();
