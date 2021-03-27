@@ -166,6 +166,12 @@ private:
     }
   };
 
+  // TODO(MXG): Allow users to configure this using SDF
+  // use this to check the colinearity threshold when chaining items together
+  double _colinearity_threshold = 3*M_PI/180;
+  // tolerance of the controller when achieving a goal
+  double _goal_tolerance = 0.02;
+
   // Constants for update rate of tf2 and robot_state topic
   static constexpr float TF2_RATE = 100.0;
   static constexpr float STATE_TOPIC_RATE = 2.0;
@@ -217,6 +223,7 @@ private:
 
   std::string _current_task_id;
   std::vector<rmf_fleet_msgs::msg::Location> _remaining_path;
+  std::vector<rmf_fleet_msgs::msg::Location> _full_path;
 
   // Vehicle dynamic constants
   // TODO(MXG): Consider fetching these values from model data
@@ -280,6 +287,12 @@ private:
   bool near_charger(const Eigen::Isometry3d& pose) const;
 
   double compute_charge(const double run_time) const;
+
+  std::size_t get_last_colinear_target(const rclcpp::Time current_time);
+
+  void predict_pop_off_targets(
+    std::size_t last_colinear_target,
+    double distance_travelled);
 
   double compute_discharge(
     const Eigen::Vector3d lin_vel, const double ang_vel,
@@ -393,6 +406,17 @@ void SlotcarCommon::read_sdf(SdfPtrT& sdf)
     "nominal_power", this->_params.nominal_power);
   RCLCPP_INFO(logger(),
     "Setting nominal power to: " + std::to_string(_params.nominal_power));
+
+  get_element_val_if_present<SdfPtrT, double>(sdf,
+    "colinearity_threshold", this->_colinearity_threshold);
+  RCLCPP_INFO(logger(),
+    "Setting colinearity threshold to: "
+    + std::to_string(_colinearity_threshold));
+
+  get_element_val_if_present<SdfPtrT, double>(sdf,
+    "goal_tolerance", this->_goal_tolerance);
+  RCLCPP_INFO(logger(),
+    "Setting colinearity threshold to: " + std::to_string(_goal_tolerance));
 
   // Charger Waypoint coordinates are in child element of top level world element
   if (sdf->GetParent() && sdf->GetParent()->GetParent())
