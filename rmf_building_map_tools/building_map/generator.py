@@ -75,6 +75,32 @@ class Generator:
             output_models_dir,
             options + ['ignition'])
 
+    def generate_ignition_sdf_with_dae_export(
+        self,
+        input_filename,
+        output_filename,
+        output_models_dir,
+        options
+    ):
+        self.generate_sdf(
+            input_filename,
+            output_filename,
+            output_models_dir,
+            options + ['ignition'] + ['dae_export'])
+
+    def generate_ignition_sdf_with_baked_assets(
+        self,
+        input_filename,
+        output_filename,
+        output_models_dir,
+        options
+    ):
+        self.generate_sdf(
+            input_filename,
+            output_filename,
+            output_models_dir,
+            options + ['ignition'] + ['baked_assets'])
+
     def generate_nav(self, input_filename, output_dir):
         building = self.parse_editor_yaml(input_filename)
         nav_graphs = building.generate_nav_graphs()
